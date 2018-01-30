@@ -1,11 +1,11 @@
 'use strict'
 
 export default function (md, name, opts) {
-  function defaultValidate(params) {
+  function defaultValidate (params) {
     return params.trim().split(' ', 2)[0] === name
   }
 
-  function defaultRender(tokens, idx, _options, env, self) {
+  function defaultRender (tokens, idx, _options, env, self) {
     if (tokens[idx].nesting === 1) {
       tokens[idx].attrPush(['class', name])
     }
@@ -18,16 +18,17 @@ export default function (md, name, opts) {
     render: defaultRender
   }, opts)
 
-  function fence(state, startLine, endLine) {
-    let marker = options.marker || '`'
+  function fence (state, startLine, endLine) {
+    // let marker = options.marker || '`'
+    const marker = (options.marker || '`').charCodeAt(0)
     let pos = state.bMarks[startLine] + state.tShift[startLine]
     let max = state.eMarks[startLine]
     let haveEndMarker = false
 
     if (state.sCount[startLine] - state.blkIndent >= 4) return false
     if (pos + 3 > max) return false
-
-    marker = state.src.charCodeAt(pos)
+    if (state.src.charCodeAt(pos) !== marker) return false
+    // marker = state.src.charCodeAt(pos)
 
     let mem = pos
     pos = state.skipChars(pos, marker)
@@ -81,6 +82,6 @@ export default function (md, name, opts) {
   }
 
   md.block.ruler.before('fence', name, fence, {
-    alt: ['paragraph', 'reference', 'blockquote', 'list']})
+    alt: ['paragraph', 'reference', 'blockquote', 'list'] })
   md.renderer.rules[name] = options.render
 }
